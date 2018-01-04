@@ -63,7 +63,7 @@ class FunctionsTest extends \PHPUnit_Framework_TestCase
 
     public function testReturnsDebugResource()
     {
-        $this->assertTrue(is_resource(GuzzleHttp\debug_resource()));
+        $this->assertInternalType('resource' , GuzzleHttp\debug_resource());
     }
 
     public function testProvidesDefaultCaBundler()
@@ -117,7 +117,7 @@ class FunctionsTest extends \PHPUnit_Framework_TestCase
 
     public function testDecodesJson()
     {
-        $this->assertSame(true, \GuzzleHttp\json_decode('true'));
+        $this->assertTrue(\GuzzleHttp\json_decode('true'));
     }
 
     /**
