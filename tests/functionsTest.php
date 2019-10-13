@@ -8,7 +8,7 @@ class FunctionsTest extends TestCase
 {
     public function testExpandsTemplate()
     {
-        $this->assertEquals(
+        $this->assertSame(
             'foo/123',
             GuzzleHttp\uri_template('foo/{bar}', ['bar' => '123'])
         );
@@ -21,7 +21,7 @@ class FunctionsTest extends TestCase
     public function testProvidesDefaultUserAgent()
     {
         $ua = GuzzleHttp\default_user_agent();
-        $this->assertEquals(1, preg_match('#^GuzzleHttp/.+ curl/.+ PHP/.+$#', $ua));
+        $this->assertRegExp('#^GuzzleHttp/.+ curl/.+ PHP/.+$#', $ua);
     }
 
     public function typeProvider()
@@ -41,13 +41,13 @@ class FunctionsTest extends TestCase
      */
     public function testDescribesType($input, $output)
     {
-        $this->assertEquals($output, GuzzleHttp\describe_type($input));
+        $this->assertSame($output, GuzzleHttp\describe_type($input));
     }
 
     public function testParsesHeadersFromLines()
     {
         $lines = ['Foo: bar', 'Foo: baz', 'Abc: 123', 'Def: a, b'];
-        $this->assertEquals([
+        $this->assertSame([
             'Foo' => ['bar', 'baz'],
             'Abc' => ['123'],
             'Def' => ['a, b'],
@@ -57,14 +57,14 @@ class FunctionsTest extends TestCase
     public function testParsesHeadersFromLinesWithMultipleLines()
     {
         $lines = ['Foo: bar', 'Foo: baz', 'Foo: 123'];
-        $this->assertEquals([
+        $this->assertSame([
             'Foo' => ['bar', 'baz', '123'],
         ], GuzzleHttp\headers_from_lines($lines));
     }
 
     public function testReturnsDebugResource()
     {
-        $this->assertInternalType('resource' , GuzzleHttp\debug_resource());
+        $this->assertInternalType('resource', GuzzleHttp\debug_resource());
     }
 
     public function testProvidesDefaultCaBundler()
@@ -105,7 +105,7 @@ class FunctionsTest extends TestCase
 
     public function testEncodesJson()
     {
-        $this->assertEquals('true', \GuzzleHttp\json_encode(true));
+        $this->assertSame('true', \GuzzleHttp\json_encode(true));
     }
 
     /**
@@ -127,6 +127,11 @@ class FunctionsTest extends TestCase
     public function testDecodesJsonAndThrowsOnError()
     {
         \GuzzleHttp\json_decode('{{]]');
+    }
+
+    public function testCurrentTime()
+    {
+        $this->assertGreaterThan(0, GuzzleHttp\_current_time());
     }
 }
 

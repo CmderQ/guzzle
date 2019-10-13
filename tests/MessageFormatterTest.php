@@ -38,7 +38,7 @@ class MessageFormatterTest extends TestCase
         $f = new MessageFormatter($format);
         $request = new Request('GET', '/');
         $result = $f->format($request);
-        $this->assertEquals(1, preg_match($pattern, $result));
+        $this->assertRegExp($pattern, $result);
     }
 
     public function formatProvider()
@@ -88,6 +88,6 @@ class MessageFormatterTest extends TestCase
     public function testFormatsMessages($template, $args, $result)
     {
         $f = new MessageFormatter($template);
-        $this->assertEquals((string) $result, call_user_func_array(array($f, 'format'), $args));
+        $this->assertSame((string) $result, call_user_func_array(array($f, 'format'), $args));
     }
 }

@@ -1,6 +1,9 @@
 <?php
 namespace GuzzleHttp\Tests\CookieJar;
 
+use DateInterval;
+use DateTime;
+use DateTimeImmutable;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Cookie\SetCookie;
 use GuzzleHttp\Psr7\Request;
@@ -238,7 +241,7 @@ class CookieJarTest extends TestCase
         $this->assertCount(1, $this->jar);
 
         $c = $this->jar->getIterator()->getArrayCopy();
-        $this->assertEquals('zoo', $c[0]->getValue());
+        $this->assertSame('zoo', $c[0]->getValue());
     }
 
     public function testAddsCookiesFromResponseWithRequest()
@@ -313,7 +316,7 @@ class CookieJarTest extends TestCase
 
         $request = new Request('GET', $url);
         $request = $this->jar->withCookieHeader($request);
-        $this->assertEquals($cookies, $request->getHeaderLine('Cookie'));
+        $this->assertSame($cookies, $request->getHeaderLine('Cookie'));
     }
 
     /**
@@ -346,7 +349,7 @@ class CookieJarTest extends TestCase
         $names = array_map(function (SetCookie $c) {
             return $c->getName();
         }, $jar->getIterator()->getArrayCopy());
-        $this->assertEquals(['foo', 'test', 'you'], $names);
+        $this->assertSame(['foo', 'test', 'you'], $names);
     }
 
     public function testCanConvertToAndLoadFromArray()
@@ -366,11 +369,11 @@ class CookieJarTest extends TestCase
     public function testAddsCookiesWithEmptyPathFromResponse()
     {
         $response = new Response(200, array(
-            'Set-Cookie' => "fpc=foobar; expires=Fri, 02-Mar-2019 02:17:40 GMT; path=;"
+            'Set-Cookie' => "fpc=foobar; expires={$this->futureExpirationDate()}; path=;"
         ));
         $request = new Request('GET', 'http://www.example.com');
         $this->jar->extractCookies($request, $response);
-        $newRequest = $this->jar->withCookieHeader(new Request('GET','http://www.example.com/foo'));
+        $newRequest = $this->jar->withCookieHeader(new Request('GET', 'http://www.example.com/foo'));
         $this->assertTrue($newRequest->hasHeader('Cookie'));
     }
 
@@ -394,13 +397,24 @@ class CookieJarTest extends TestCase
     public function testCookiePathWithEmptySetCookiePath($uriPath, $cookiePath)
     {
         $response = (new Response(200))
-            ->withAddedHeader('Set-Cookie', "foo=bar; expires=Fri, 02-Mar-2019 02:17:40 GMT; domain=www.example.com; path=;")
-            ->withAddedHeader('Set-Cookie', "bar=foo; expires=Fri, 02-Mar-2019 02:17:40 GMT; domain=www.example.com; path=foobar;")
+            ->withAddedHeader(
+                'Set-Cookie',
+                "foo=bar; expires={$this->futureExpirationDate()}; domain=www.example.com; path=;"
+            )
+            ->withAddedHeader(
+                'Set-Cookie',
+                "bar=foo; expires={$this->futureExpirationDate()}; domain=www.example.com; path=foobar;"
+            )
         ;
         $request = (new Request('GET', $uriPath))->withHeader('Host', 'www.example.com');
         $this->jar->extractCookies($request, $response);
 
-        $this->assertEquals($cookiePath, $this->jar->toArray()[0]['Path']);
-        $this->assertEquals($cookiePath, $this->jar->toArray()[1]['Path']);
+        $this->assertSame($cookiePath, $this->jar->toArray()[0]['Path']);
+        $this->assertSame($cookiePath, $this->jar->toArray()[1]['Path']);
+    }
+
+    private function futureExpirationDate()
+    {
+        return (new DateTimeImmutable)->add(new DateInterval('P1D'))->format(DateTime::COOKIE);
     }
 }

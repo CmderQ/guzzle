@@ -37,8 +37,8 @@ class CurlHandlerTest extends TestCase
         Server::enqueue([$response, $response]);
         $a = new CurlHandler();
         $request = new Request('GET', Server::$url);
-        $a($request, []);
-        $a($request, []);
+        $this->assertInstanceOf('GuzzleHttp\Promise\FulfilledPromise', $a($request, []));
+        $this->assertInstanceOf('GuzzleHttp\Promise\FulfilledPromise', $a($request, []));
     }
 
     public function testDoesSleep()
@@ -47,9 +47,9 @@ class CurlHandlerTest extends TestCase
         Server::enqueue([$response]);
         $a = new CurlHandler();
         $request = new Request('GET', Server::$url);
-        $s = microtime(true);
+        $s = \GuzzleHttp\_current_time();
         $a($request, ['delay' => 0.1])->wait();
-        $this->assertGreaterThan(0.0001, microtime(true) - $s);
+        $this->assertGreaterThan(0.0001, \GuzzleHttp\_current_time() - $s);
     }
 
     public function testCreatesCurlErrorsWithContext()
