@@ -56,7 +56,7 @@ function describe_type($input)
 /**
  * Parses an array of header lines into an associative array of headers.
  *
- * @param array $lines Header lines array of strings in the following
+ * @param iterable $lines Header lines array of strings in the following
  *                     format: "Name: Value"
  * @return array
  */
@@ -196,7 +196,8 @@ function default_ca_bundle()
         }
     }
 
-    throw new \RuntimeException(<<< EOT
+    throw new \RuntimeException(
+        <<< EOT
 No system CA bundle could be found in any of the the common system locations.
 PHP versions earlier than 5.6 are not properly configured to use the system's
 CA bundle by default. In order to verify peer certificates, you will need to
